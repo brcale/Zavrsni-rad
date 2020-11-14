@@ -1,105 +1,223 @@
-import './App.css';
-import React, {useEffect, useState} from 'react';
-import axios from 'axios'
+import React, { Component } from 'react';
+import "./App.css";
+import { getQuotes ,getLogo ,getNews ,getChart } from './api/iex';
+import StockInfo from './StockInfo';
+import ListOfNews from './ListOfNews';
+import ChartGraph from './ChartGraph';
+import ChartTable from './ChartTable';
 
-var prazanNiz = [{country: "Tesla", visits: 300},
-                  {country: "Microsoft", visits: 500},{country: "Amazon", visits: 1000},
-                  {country: "Netflix", visits: 1200},{country: "Apple", visits: 1540},
-                  {country: "IBM", visits: 2000}];
-const am4core = window.am4core;
-const am4charts = window.am4charts;
-const am4themes_dark = window.am4themes_dark;
-const am4themes_animated = window.am4themes_animated;
-am4core.ready(function() {
+class App extends Component {
+  state = {
+    enteredSymbol: "NFLX",
+    quote: null,
+    quoteHistory: [],
+    showHistory: false,
+    news: [],
+    showAllNews: false,
+    chart: [],
+    showAllChart: false
+  };
+  componentDidMount() {
+    this.getApi();
+  }
+  getApi = () => {
+    const {enteredSymbol} = this.state;
+    Promise.all([
+      getQuotes(enteredSymbol),
+      getLogo(enteredSymbol),
+      getNews(enteredSymbol),
+      getChart(enteredSymbol)
+    ])
+    .then(values => {
+      const [quote, logo, news, chart] = values;
+      this.setState(prevState => {
+        const quoteWithLogo = { ...quote, logo: logo};
+        const history = prevState.quoteHistory;
+        history.push({...quoteWithLogo})
+        return {
+          quote: quoteWithLogo,
+          error: null,
+          quoteHistory: history,
+          news: news,
+          chart: chart
+        };
+      });
+    })
+    .catch(error => {
+      if (error.response.status === 404) {
+        error = new Error("There is a problem with that stock symbol. (${enteredSymbol}) Try something else.");
+      }
+      this.setState({error: error});
+    })
+  }
+  userInput = event =>{
+    var value = event.target.value.toUpperCase();
+    value = value.trim();
+    this.setState({
+      enteredSymbol: value
+    });
+  };
+  onClickShowHistory = event =>{
+    this.setState(prevState => {
+      const showHistory = prevState.History;
+      return {
+        showHistory: !showHistory
+      }
+    })
+  };
+  onClickShowAllCharts = event => {
+    this.setState(prevState => {
+      const showAllChart = prevState.showAllChart;
+      return {
+        showAllChart: !showAllChart
+      }
+    })
+  }
 
-  // Themes begin
-  am4core.useTheme(am4themes_dark);
-  am4core.useTheme(am4themes_animated);
-  // Themes end
-  
-  var chart = am4core.create("chartdiv", am4charts.XYChart);
-  chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-  
-  chart.data = prazanNiz;
-  
-  var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-  categoryAxis.renderer.grid.template.location = 0;
-  categoryAxis.dataFields.category = "country";
-  categoryAxis.renderer.minGridDistance = 40;
-  categoryAxis.fontSize = 11;
-  
-  var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-  valueAxis.min = 0;
-  valueAxis.max = 24000;
-  valueAxis.strictMinMax = true;
-  valueAxis.renderer.minGridDistance = 30;
-  // axis break
-  var axisBreak = valueAxis.axisBreaks.create();
-  axisBreak.startValue = 2100;
-  axisBreak.endValue = 22900;
-  //axisBreak.breakSize = 0.005;
-  
-  // fixed axis break
-  var d = (axisBreak.endValue - axisBreak.startValue) / (valueAxis.max - valueAxis.min);
-  axisBreak.breakSize = 0.05 * (1 - d) / d; // 0.05 means that the break will take 5% of the total value axis height
-  
-  // make break expand on hover
-  var hoverState = axisBreak.states.create("hover");
-  hoverState.properties.breakSize = 1;
-  hoverState.properties.opacity = 0.1;
-  hoverState.transitionDuration = 500;
-  
-  axisBreak.defaultState.transitionDuration = 500;
+  onClickShowAllNews = event => {
+    this.setState(prevState => {
+      const showAllNews = prevState.showAllNews;
+      return {
+        showAllNews: !showAllNews
+      }
+    })
+  }
 
-  
-  var series = chart.series.push(new am4charts.ColumnSeries());
-  series.dataFields.categoryX = "country";
-  series.dataFields.valueY = "visits";
-  series.columns.template.tooltipText = "{valueY.value}";
-  series.columns.template.tooltipY = 0;
-  series.columns.template.strokeOpacity = 0;
-  
-  // as by default columns of the same series are of the same color, we add adapter which takes colors from chart.colors color set
-  series.columns.template.adapter.add("fill", function(fill, target) {
-    return chart.colors.getIndex(target.dataItem.index);
-  });
-  
-  }); 
+  render() {
+    const {
+      quote,
+      enteredSymbol,
+      quoteHistory,
+      showHistory,
+      news,
+      showAllNews,
+      chart,
+      showAllChart,
+      error
+    } = this.state;
 
-function Item (props) {
-  console.log(props)
-  return (
-    <div style={{margin:"20px", backgroundColor: "blue"}}>
-    <h2>{props.data.title}</h2>
-    </div>
-  )
+    const chartReverse = [...chart].reverse();
+    const chartReverseMin = chartReverse.slice (0,12);
+    const quoteHistoryReverse = [...quoteHistory].reverse();
+    const newsMin = [...news].slice (0,3);
+    const companyName = !!quote && quote.companyName;
+    const chartCloses = [];
+    const chartDates = [];
+    chart.map(chartItem => {
+      chartDates.push(chartItem.label);
+      chartCloses.push(chartItem.close);
+      return null;
+    })
+    return (
+      <div className="bgcolor text-light">
+      <div className="App pb-3">
+        {/* Header - search bar */}
+      <div className="jumbotron bgcolor">
+        <div className="container">
+          <h2 className="display-3 center">Stock Market</h2>
+          <p>Get stock info here: </p>
+        <div className="row">
+          <div className="col input-group">
+            <input maxLength="4"
+                   type="text"
+                   className="form-control"
+                   placeholder="Put a stock symbol here (e.g. APPL)."
+                   aria-label="Symbol"
+                   onChange={this.userInput}
+                   />
+          <span className="input-group-btn input-but">
+            <button className="btn btn-dark" type="button" onClick={this.getApi}>Get Data!</button>
+          </span>
+          {/* Modal for company symbols */}
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">
+            Company Symbols
+          </button>
+            <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-color" id="exampleModalLongTitle">Company's NASDAQ</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p className="text-color">
+                  Apple - AAPL <br />
+                  Microsoft - MSFT<br />
+                  Amazon - AMZN<br />
+                  Google - GOOG<br />
+                  AliBaba - BABA<br />
+                  Tesla - TSLA<br />
+                  NVIDIA - NVDA<br />
+                  Intel - INTC
+                  </p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+        </div>
+        </div>
+        <hr className="hrline"></hr>
+        {/* div under search bar, latest news and info */}
+          <div className="row mt-3">
+            <div className="col">
+              <h3>Latest info</h3>
+              {!!quote ? <StockInfo {...quote} /> : <p>Loading...</p>}
+              <div className="mt-3">
+    <button className="btn btn-dark" onClick={this.onClickShowHistory}>{showHistory ? "Hide Previous Quotes" : "Show previous quotes"}</button>
+              </div>
+              <div className="mt-3">
+                {showHistory && !!quoteHistory && (
+                  <div>
+                    <h3 className="text-center">Previous info</h3>
+                {quoteHistoryReverse.map((quoteHistoryItem, index) =>{
+                  return (
+                    <div key={"quote" + index}>
+                      <StockInfo {...quoteHistoryItem} />
+                      <hr className="hrline"></hr>
+                    </div>
+                  );
+                })}
+              </div>
+              )}
+            </div>
+            <div className="mt-5">
+              <h2>{!!companyName && "News about " + companyName}</h2>
+              {!showAllNews && !!newsMin && <ListOfNews news={newsMin} />}
+              {showAllNews && !!news && (
+                <div> <ListOfNews news={newsMin} /></div>
+              )}
+              <button className="btn btn-dark"> </button>
+            </div>
+          </div>
+              <div className="col">
+                {!!chart && (
+                  <div className="charts">
+                    <h2 className="text-center"> {!!companyName&&companyName + "(Past 3 months)"} </h2>
+                    <ChartGraph title={enteredSymbol} chartLabels={chartDates} chartData={chartCloses} />
+                    </div>
+                )}
+                <div className="mt-3">
+                  {!showAllChart && !!chartReverseMin && (
+                    <ChartTable chart={chartReverseMin} />
+                  )}
+                  {showAllChart && !!chartReverse && (
+                    <ChartTable chart={chartReverse} />
+                  )}
+                  <button className="btn btn-dark" onClick={this.onClickShowAllCharts}>{showAllChart ? "Show Less" : "Show All"}</button>
+                </div>
+              </div>
+        </div>
+        </div>
+        </div>
+    )
+  }
 }
 
-function App() {
-  const [data, setData] = useState ([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios.get(
-        'https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-charts?region=US&comparisons=%255EGDAXI%252C%255EFCHI&symbol=HYDR.ME&interval=5m&range=1d',
-        {headers: {"x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
-        "x-rapidapi-key": "49f9fd6365msh2c22d465b4b1ad5p1cdb2cjsncc1be62083c1"}}
-      );
-        console.log(result)
-      setData(result.data);
-    };
- 
-    fetchData();
-  }, []);
-  return (
-    <div>
-      {data.news && data.news.length>0 &&
-        data.news.map(item => (
-          <Item key={item.uuid} data={item}/>
-        ))}
-
-<div id="chartdiv"></div>
-    </div>
-  );
-}
-
-export default App;
+export default App

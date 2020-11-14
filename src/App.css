@@ -1,0 +1,21 @@
+.bgcolor{
+    background: rgb(2,0,36);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(138,0,157,1) 100%, rgba(0,212,255,1) 100%);
+}
+.center {
+    margin: auto;
+    width: 50%;
+    padding: 30px;
+    text-align:center;
+    align-items:center;
+  }
+  .input-but{
+      margin-right:20px;
+  }
+  .text-color{
+      color:black;
+  }
+  hr.hrline{
+      border: 1px solid white;
+      margin-bottom: 70px;
+  }
