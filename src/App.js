@@ -75,7 +75,6 @@ class App extends Component {
       showAllNews,
       chart,
       showAllChart,
-      error
     } = this.state;
   
     const chartReverse = [...chart].reverse();

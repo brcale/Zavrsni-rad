@@ -10,7 +10,7 @@ const NewsElement = ({
     console.log(headline)
     return (
         <div class="card col-5 card-margin">
-        <img class="card-img-top news-img" src={image} />
+        <img class="card-img-top news-img" src={image} alt="" />
         <div class="card-body summary-length">
             <h6 className="text-light">{headline}</h6>
           <p class="card-text text-light summary-margin">{summary.substring(0,125)}...

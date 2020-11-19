@@ -16,13 +16,4 @@ const ListOfNews = ({
     </div>
   )
 
-
-
 export default ListOfNews;
-
-
-/*<div key={"news" + index}>
-                    <div class="d-flex flex-wrap">
-                        <div className="one"><NewsElement {...newsItem} /> </div>
-                    </div>
-                </div> */

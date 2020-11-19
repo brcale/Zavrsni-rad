@@ -5,7 +5,7 @@ const ChartElement = ({
 }) => {
     return (
         <tr>
-            <td scope="row">{date}</td>
+            <td>{date}</td>
             <td>{open}</td>
             <td>{high}</td>
             <td>{low}</td>
