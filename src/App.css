@@ -50,6 +50,7 @@
      width:100%;
      border:1px solid white;
      margin-left: 15px;
+     margin-bottom: 15px;
  }
  .card{
      background: transparent !important;
@@ -71,4 +72,7 @@
  .summary-margin{
      padding-bottom:25px;
      font-size: 14px;
+ }
+ .margin-left{
+     margin-left:15px;
  }

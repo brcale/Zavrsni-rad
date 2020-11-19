@@ -51,14 +51,6 @@ class App extends Component {
     })*/
   }
  
-  onClickShowHistory = event =>{
-    this.setState(prevState => {
-      const showHistory = prevState.History;
-      return {
-        showHistory: !showHistory
-      }
-    })
-  };
   onClickShowAllCharts = event => {
     this.setState(prevState => {
       const showAllChart = prevState.showAllChart;
@@ -79,8 +71,6 @@ class App extends Component {
     const {
       quote,
       enteredSymbol,
-      quoteHistory,
-      showHistory,
       news,
       showAllNews,
       chart,
@@ -90,7 +80,6 @@ class App extends Component {
   
     const chartReverse = [...chart].reverse();
     const chartReverseMin = chartReverse.slice (0,15);
-    const quoteHistoryReverse = [...quoteHistory].reverse();
     const newsMin = [...news].slice (0,4);
     const companyName = !!quote && quote.companyName;
     const chartCloses = [];
@@ -158,28 +147,13 @@ class App extends Component {
         <hr className="hrline"></hr>
         {/* latest info section */}
 
-        <div className="row mt-3">
+        <div className="row mt-3 ">
             <div className="col text-light">
-              <h3>Latest information about {companyName}</h3>
+              <h3 className="margin-left">Latest information about {companyName}</h3>
               {!!quote ? <StockInfo {...quote} /> : <p>Loading...</p>}
-              
-              <div className="mt-3">
-                {showHistory && !!quoteHistory && (
-                  <div>
-                    <h3 className="text-center text-light">Previous info</h3>
-                {quoteHistoryReverse.map((quoteHistoryItem, index) =>{
-                  return (
-                    <div key={"quote" + index}>
-                      <StockInfo {...quoteHistoryItem} />
-                      <hr className="hrline"></hr>
-                    </div>
-                  );
-                })}
-              </div>
-              )}
-            </div></div></div>
+            </div>
+          </div>
         {/* News section */}
-
         <div>
         <div className="mt-2 col-6 float-right">
               <h2 className="text-center">{!!companyName && "News about " + companyName}</h2>
