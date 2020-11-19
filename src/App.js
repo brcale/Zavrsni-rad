@@ -8,7 +8,7 @@ import ChartTable from './ChartTable';
 
 class App extends Component {
   state = {
-    enteredSymbol: "NFLX",
+    enteredSymbol: "AAPL",
     quote: null,
     quoteHistory: [],
     showHistory: false,
