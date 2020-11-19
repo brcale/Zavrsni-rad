@@ -8,11 +8,11 @@ const ChartGraph = ({
 }) => {
     const data = {
         labels: chartLabels,
-        dataSets: [{ label: title,
+        datasets: [{ label: title,
                      data: chartData,
-                     backgroundColor: ['rgba(255,99,132,0.2'],
-        borderColor: ['rgba(255,99,132,1'],
-        borderWidth: 1}]
+                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(255, 159, 64, 1)',
+        borderWidth: 2}]
     }
     const options = {
         scales: {
@@ -23,7 +23,11 @@ const ChartGraph = ({
             }]
         }
     }
-    return (<LineChart data={data} options={options} />)
+    return (
+        <div>
+    {!!chartLabels ? <LineChart data={data} options={options} /> : console.log("error")}
+    </div>
+    )
 }
 
 export default ChartGraph;

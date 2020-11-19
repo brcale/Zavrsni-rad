@@ -3,7 +3,7 @@ import ChartElement from './ChartElement';
 
 const ChartTable = ({ chart }) => (
     <div>
-        <table className="table">
+        <table className="table text-light">
             <thead>
                 <tr>
                     <th scope="col">Date</th>

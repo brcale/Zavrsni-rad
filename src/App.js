@@ -43,20 +43,14 @@ class App extends Component {
         };
       });
     })
-    .catch(error => {
+    /*.catch(error => {
       if (error.response.status === 404) {
         error = new Error("There is a problem with that stock symbol. (${enteredSymbol}) Try something else.");
       }
       this.setState({error: error});
-    })
+    })*/
   }
-  userInput = event =>{
-    var value = event.target.value.toUpperCase();
-    value = value.trim();
-    this.setState({
-      enteredSymbol: value
-    });
-  };
+ 
   onClickShowHistory = event =>{
     this.setState(prevState => {
       const showHistory = prevState.History;
@@ -74,14 +68,12 @@ class App extends Component {
     })
   }
 
-  onClickShowAllNews = event => {
-    this.setState(prevState => {
-      const showAllNews = prevState.showAllNews;
-      return {
-        showAllNews: !showAllNews
-      }
-    })
-  }
+  onEnterPressLoadData = event => {
+    if (event.keyCode === 13) {
+      console.log("fucntin")
+      this.getApi();
+    }
+  };
 
   render() {
     const {
@@ -95,11 +87,11 @@ class App extends Component {
       showAllChart,
       error
     } = this.state;
-
+  
     const chartReverse = [...chart].reverse();
-    const chartReverseMin = chartReverse.slice (0,12);
+    const chartReverseMin = chartReverse.slice (0,15);
     const quoteHistoryReverse = [...quoteHistory].reverse();
-    const newsMin = [...news].slice (0,3);
+    const newsMin = [...news].slice (0,4);
     const companyName = !!quote && quote.companyName;
     const chartCloses = [];
     const chartDates = [];
@@ -123,7 +115,7 @@ class App extends Component {
                    className="form-control"
                    placeholder="Put a stock symbol here (e.g. APPL)."
                    aria-label="Symbol"
-                   onChange={this.userInput}
+                   onKeyDown={this.onEnterPressLoadData.bind(this)}
                    />
           <span className="input-group-btn input-but">
             <button className="btn btn-dark" type="button" onClick={this.getApi}>Get Data!</button>
@@ -136,21 +128,21 @@ class App extends Component {
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title text-color" id="exampleModalLongTitle">Company's NASDAQ</h5>
+                  <h5 class="modal-title text-color" id="exampleModalLongTitle">Company's symbols</h5>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
                 <div class="modal-body">
                   <p className="text-color">
-                  Apple - AAPL <br />
-                  Microsoft - MSFT<br />
-                  Amazon - AMZN<br />
-                  Google - GOOG<br />
-                  AliBaba - BABA<br />
-                  Tesla - TSLA<br />
-                  NVIDIA - NVDA<br />
-                  Intel - INTC
+                  Apple - <strong>AAPL</strong> <br />
+                  Microsoft - <strong>MSFT</strong><br />
+                  Amazon - <strong>AMZN</strong><br />
+                  Google - <strong>GOOG</strong><br />
+                  AliBaba - <strong>BABA</strong><br />
+                  Tesla - <strong>TSLA</strong><br />
+                  NVIDIA - <strong>NVDA</strong><br />
+                  Intel - <strong>INTC</strong>
                   </p>
                 </div>
                 <div class="modal-footer">
@@ -164,18 +156,17 @@ class App extends Component {
         </div>
         </div>
         <hr className="hrline"></hr>
-        {/* div under search bar, latest news and info */}
-          <div className="row mt-3">
-            <div className="col">
-              <h3>Latest info</h3>
+        {/* latest info section */}
+
+        <div className="row mt-3">
+            <div className="col text-light">
+              <h3>Latest information about {companyName}</h3>
               {!!quote ? <StockInfo {...quote} /> : <p>Loading...</p>}
-              <div className="mt-3">
-    <button className="btn btn-dark" onClick={this.onClickShowHistory}>{showHistory ? "Hide Previous Quotes" : "Show previous quotes"}</button>
-              </div>
+              
               <div className="mt-3">
                 {showHistory && !!quoteHistory && (
                   <div>
-                    <h3 className="text-center">Previous info</h3>
+                    <h3 className="text-center text-light">Previous info</h3>
                 {quoteHistoryReverse.map((quoteHistoryItem, index) =>{
                   return (
                     <div key={"quote" + index}>
@@ -186,21 +177,25 @@ class App extends Component {
                 })}
               </div>
               )}
-            </div>
-            <div className="mt-5">
-              <h2>{!!companyName && "News about " + companyName}</h2>
+            </div></div></div>
+        {/* News section */}
+
+        <div>
+        <div className="mt-2 col-6 float-right">
+              <h2 className="text-center">{!!companyName && "News about " + companyName}</h2>
               {!showAllNews && !!newsMin && <ListOfNews news={newsMin} />}
               {showAllNews && !!news && (
-                <div> <ListOfNews news={newsMin} /></div>
+                <div className="mt-2"> <ListOfNews news={newsMin} /></div>
               )}
-              <button className="btn btn-dark"> </button>
-            </div>
           </div>
-              <div className="col">
+        
+        {/* div under search bar, latest news and info */}
+        <div className="col-6">
                 {!!chart && (
                   <div className="charts">
-                    <h2 className="text-center"> {!!companyName&&companyName + "(Past 3 months)"} </h2>
+                    <h2 className="text-center"> {!!companyName&&companyName + " (Past month)"} </h2>
                     <ChartGraph title={enteredSymbol} chartLabels={chartDates} chartData={chartCloses} />
+                    {console.log(chartCloses + chartDates)}
                     </div>
                 )}
                 <div className="mt-3">
@@ -210,7 +205,7 @@ class App extends Component {
                   {showAllChart && !!chartReverse && (
                     <ChartTable chart={chartReverse} />
                   )}
-                  <button className="btn btn-dark" onClick={this.onClickShowAllCharts}>{showAllChart ? "Show Less" : "Show All"}</button>
+                  <button className="btn btn-dark btn-block" onClick={this.onClickShowAllCharts}>{showAllChart ? "Show Less" : "Show All"}</button>
                 </div>
               </div>
         </div>
