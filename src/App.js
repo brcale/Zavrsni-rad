@@ -17,6 +17,9 @@ class App extends Component {
     chart: [],
     showAllChart: false
   };
+  handleInputChange = e =>{
+    this.setState({enteredSymbol: e.target.value})
+  }
   componentDidMount() {
     this.getApi();
   }
@@ -103,7 +106,8 @@ class App extends Component {
                    className="form-control"
                    placeholder="Put a stock symbol here (e.g. APPL)."
                    aria-label="Symbol"
-                   onKeyDown={this.onEnterPressLoadData.bind(this)}
+                   onChange={(e) => this.handleInputChange(e)}
+                   value={this.state.enteredSymbol}
                    />
           <span className="input-group-btn input-but">
             <button className="btn btn-dark" type="button" onClick={this.getApi}>Get Data!</button>
@@ -168,7 +172,6 @@ class App extends Component {
                   <div className="charts">
                     <h2 className="text-center"> {!!companyName&&companyName + " (Past month)"} </h2>
                     <ChartGraph title={enteredSymbol} chartLabels={chartDates} chartData={chartCloses} />
-                    {console.log(chartCloses + chartDates)}
                     </div>
                 )}
                 <div className="mt-3">

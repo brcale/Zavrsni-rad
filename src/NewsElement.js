@@ -7,8 +7,7 @@ const NewsElement = ({
     image,
     summary
 }) => {
-    console.log(headline)
-    return (
+        return (
         <div class="card col-5 card-margin">
         <img class="card-img-top news-img" src={image} alt="" />
         <div class="card-body summary-length">

@@ -10,7 +10,6 @@ const StockInfo = ({
     week52Low,
     logo
 }) => {
-    console.log(logo)
     return (
         <div className="row rounded-sm latest-info-div">
             <div className="col-2">
